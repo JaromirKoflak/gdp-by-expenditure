@@ -1,0 +1,51 @@
+# Missing Values
+
+Number of series with missing values for each economy
+
+```{r, echo=FALSE, message=FALSE, eval=TRUE}
+missing_values = unctaddf %>%
+  filter(str_length(Economy) < 4,
+         is.na(Value.new) & !is.na(Value.old)) 
+
+missing_values_table = missing_values %>% 
+  group_by(Economy, IndicatorName, Prices) %>% 
+  summarise(
+    Label = Economy_Label.old[1],
+    Years = shorten_years(Year)
+  ) %>% 
+  select(Economy, Label, IndicatorName, Prices, Years) 
+
+missing_values_table %>% 
+  group_by(Label) %>% 
+  count() %>% 
+  rename(`Incomplete Series` = n) %>% 
+  DT::datatable()
+```
+
+A complete list of economies and indicators with values missing in the new dataset.
+
+```{r, echo=FALSE, message=FALSE, eval=TRUE}
+missing_values_table %>% 
+  DT::datatable()
+```
+
+
+```{r, echo=FALSE, eval=FALSE}
+missing_values %>% 
+  distinct(Economy_Label.old) %>% 
+  arrange(.[1]) %>% 
+  pull() %>% 
+  map(plot_by_economy) %>% 
+  compact() %>% 
+  map(ggplotly, dynamicTicks = TRUE) %>% 
+  map(layout, title = list(
+                font = list(
+                  size = 22)),
+              legend = list(
+                orientation = "h",
+                title = ""),
+              margin = list(
+                b=110
+              )) %>% 
+  htmltools::tagList() 
+```

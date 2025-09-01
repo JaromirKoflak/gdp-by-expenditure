@@ -1,0 +1,137 @@
+
+
+# Discrepancies
+
+```{r, echo=FALSE}
+tolerance = 2e-3
+```
+
+All discrepancies in individual economies from the previous release. Tolerance: `r tolerance`
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, eval=TRUE}
+
+# Directories
+datadir = file.path(getwd(), "data")
+outputdir = file.path(getwd(), "output")
+
+# New data
+gdp_exp = read_csv(file.path(outputdir, "gdp_expenditure_update.csv"), show_col_types = F)
+
+# Old data 
+old_data = read_csv(file.path(datadir, "US_GDPComponent.csv"))
+
+unctaddf = old_data %>% 
+  select(Economy, 
+         `Economy Label`, 
+         Year, 
+         `Component Label`, 
+         `US$ at current prices in millions`, 
+         `US$ at constant prices (2015) in millions`) %>% 
+  rename(	
+    Economy_Label = `Economy Label`,
+    IndicatorName = `Component Label`,
+    current = `US$ at current prices in millions`,
+    constant = `US$ at constant prices (2015) in millions`) %>% 
+  pivot_longer(c(current, constant), names_to = "Prices", values_to = "Value") %>% 
+  full_join(
+    gdp_exp,
+    by = join_by(Economy == Economy_Code,
+                 Year == Year,
+                 IndicatorName == IndicatorName,
+                 Prices == Prices),
+    suffix = c(".old", ".new")
+  ) 
+
+
+plot_by_economy = function(economy_label, indicator) {
+  p = unctaddf %>% 
+    filter(Economy_Label.old == economy_label,
+           IndicatorName == indicator) %>% 
+    pivot_longer(c(Value.old, Value.new), names_to = "Release", values_to = "Value") %>% 
+    mutate(Release = Release %>% 
+             fct_recode(old = "Value.old", new = "Value.new") %>% 
+             fct_relevel(c("old", "new"))) %>% 
+    ggplot(aes(x=Year, y=Value, linetype=Prices, color=Release)) +
+      geom_line(linewidth=1) +
+      theme_bw() + 
+      labs(title = paste0("<b>", economy_label, "<br>", "<sup>", indicator, "</sup>", "</b>"),
+           subtitle = indicator,
+           x = "",
+           y = "USD") +
+      scale_color_manual(values = c("#FBAF17", "#009EDB")) 
+  return(p)
+}  
+```
+
+```{r, echo=FALSE, eval=TRUE}
+# A function to shorten a list of years
+# Example:
+# [1999, 2000, 2001, 2002, 2005, 2006, 2010] -> 
+# "1999-2002, 2005-2006, 2010"
+shorten_years <- function(years) {
+  # Ensure the years are sorted and unique
+  years <- sort(unique(years))
+  
+  # Identify consecutive runs:
+  # diff(years) != 1 is TRUE whenever a break occurs in the sequence
+  # cumsum(...) assigns a unique group ID to each run of consecutive numbers
+  runs <- split(years, cumsum(c(1, diff(years) != 1)))
+  
+  # Convert each run into a string
+  parts <- sapply(runs, function(run) {
+    if (length(run) >= 2) {
+      # If the run has 2 or more consecutive years, collapse to "start-end"
+      paste0(run[1], "-", run[length(run)])
+    } else {
+      # If the run is only a single year, just return it
+      as.character(run)
+    }
+  })
+  
+  # Combine all parts into a single string separated by commas
+  paste(parts, collapse = ", ")
+}
+
+# Example
+# years <- c(1999, 2000, 2001, 2002, 2005, 2006, 2010)
+# shorten_years(years)
+# 
+# years <- c(1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2010)
+# shorten_years(years)
+```
+
+```{r, echo=FALSE, message=FALSE, eval=TRUE}
+discrepancies = unctaddf %>% 
+  filter(str_length(Economy) < 4,
+         !near(Value.new, Value.old, tol=tolerance)) 
+
+discrepancies %>% 
+  group_by(Economy, IndicatorName, Prices) %>% 
+  summarise(
+    Label = Economy_Label.old[1],
+    Years = shorten_years(Year)
+  ) %>% 
+  select(Economy, Label, IndicatorName, Prices, Years) %>% 
+  DT::datatable()
+```
+
+```{r, echo=FALSE, message=FALSE, eval=TRUE}
+desired_plots = discrepancies %>% 
+  distinct(Economy_Label.old, IndicatorName) %>% 
+  arrange(Economy_Label.old, IndicatorName)
+
+map2(desired_plots$Economy_Label.old, desired_plots$IndicatorName, plot_by_economy) %>% 
+  compact() %>% 
+  map(ggplotly, dynamicTicks = TRUE) %>% 
+  map(layout, title = list(
+                font = list(
+                  size = 22)),
+              legend = list(
+                orientation = "h",
+                title = ""),
+              margin = list(
+                b=110
+              )) %>% 
+  htmltools::tagList() 
+
+```

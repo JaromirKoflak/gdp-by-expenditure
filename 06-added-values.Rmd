@@ -1,0 +1,37 @@
+# Added Values
+A list of economies with values, which were missing in the old dataset.
+
+```{r, echo=FALSE, message=FALSE, eval=TRUE}
+added_values = unctaddf %>%
+  filter(str_length(Economy) < 4,
+         is.na(Value.old) & !is.na(Value.new))
+
+added_values %>% 
+  group_by(Economy, IndicatorName, Prices) %>% 
+  summarise(
+    Label = Economy_Label.new[1],
+    Years = shorten_years(Year)
+  ) %>% 
+  select(Economy, Label, IndicatorName, Prices, Years) %>% 
+  DT::datatable()
+```
+
+```{r, echo=FALSE, eval=FALSE}
+added_values %>% 
+  distinct(Economy_Label.new) %>% 
+  arrange(.[1]) %>% 
+  pull() %>% 
+  map(plot_by_economy) %>% 
+  compact() %>% 
+  map(ggplotly, dynamicTicks = TRUE) %>% 
+  map(layout, title = list(
+                font = list(
+                  size = 22)),
+              legend = list(
+                orientation = "h",
+                title = ""),
+              margin = list(
+                b=110
+              )) %>% 
+  htmltools::tagList() 
+```

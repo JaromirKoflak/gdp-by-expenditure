@@ -1,0 +1,837 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{book}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{5}
+\usepackage{booktabs}
+\usepackage[]{natbib}
+\bibliographystyle{apalike}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={GDP ETL Documentation},
+  pdfauthor={Jaromír Koflák},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{GDP ETL Documentation}
+\author{Jaromír Koflák}
+\date{}
+
+\begin{document}
+\maketitle
+
+{
+\setcounter{tocdepth}{1}
+\tableofcontents
+}
+\begin{verbatim}
+#> $knitr
+#> $knitr$opts_knit
+#> NULL
+#> 
+#> $knitr$opts_chunk
+#> $knitr$opts_chunk$dev
+#> [1] "png"
+#> 
+#> $knitr$opts_chunk$dpi
+#> [1] 96
+#> 
+#> $knitr$opts_chunk$fig.width
+#> [1] 7
+#> 
+#> $knitr$opts_chunk$fig.height
+#> [1] 5
+#> 
+#> $knitr$opts_chunk$fig.retina
+#> [1] 2
+#> 
+#> 
+#> $knitr$knit_hooks
+#> NULL
+#> 
+#> $knitr$opts_hooks
+#> NULL
+#> 
+#> $knitr$opts_template
+#> NULL
+#> 
+#> 
+#> $pandoc
+#> $pandoc$to
+#> [1] "html"
+#> 
+#> $pandoc$from
+#> [1] "markdown+autolink_bare_uris+tex_math_single_backslash"
+#> 
+#> $pandoc$args
+#>  [1] "--embed-resources"                                                                                        
+#>  [2] "--standalone"                                                                                             
+#>  [3] "--variable"                                                                                               
+#>  [4] "bs3=TRUE"                                                                                                 
+#>  [5] "--section-divs"                                                                                           
+#>  [6] "--template"                                                                                               
+#>  [7] "C:\\Users\\jaromir.koflak\\AppData\\Local\\Programs\\R\\R-4.5.1\\library\\rmarkdown\\rmd\\h\\default.html"
+#>  [8] "--no-highlight"                                                                                           
+#>  [9] "--variable"                                                                                               
+#> [10] "highlightjs=1"                                                                                            
+#> 
+#> $pandoc$keep_tex
+#> [1] FALSE
+#> 
+#> $pandoc$latex_engine
+#> [1] "pdflatex"
+#> 
+#> $pandoc$ext
+#> NULL
+#> 
+#> $pandoc$convert_fun
+#> NULL
+#> 
+#> $pandoc$lua_filters
+#> [1] "C:\\Users\\jaromir.koflak\\AppData\\Local\\Programs\\R\\R-4.5.1\\library\\rmarkdown\\rmarkdown\\lua\\pagebreak.lua"    
+#> [2] "C:\\Users\\jaromir.koflak\\AppData\\Local\\Programs\\R\\R-4.5.1\\library\\rmarkdown\\rmarkdown\\lua\\latex-div.lua"    
+#> [3] "C:\\Users\\jaromir.koflak\\AppData\\Local\\Programs\\R\\R-4.5.1\\library\\rmarkdown\\rmarkdown\\lua\\table-classes.lua"
+#> 
+#> 
+#> $keep_md
+#> [1] FALSE
+#> 
+#> $clean_supporting
+#> [1] TRUE
+#> 
+#> $df_print
+#> function (data, options = list(), class = "display", callback = JS("return table;"), 
+#>     rownames, colnames, container, caption = NULL, filter = c("none", 
+#>         "bottom", "top"), escape = TRUE, style = "auto", width = NULL, 
+#>     height = NULL, elementId = NULL, fillContainer = getOption("DT.fillContainer", 
+#>         NULL), autoHideNavigation = getOption("DT.autoHideNavigation", 
+#>         NULL), selection = c("multiple", "single", "none"), extensions = list(), 
+#>     plugins = NULL, editable = FALSE) 
+#> {
+#>     oop = base::options(stringsAsFactors = FALSE)
+#>     on.exit(base::options(oop), add = TRUE)
+#>     options = modifyList(getOption("DT.options", list()), if (is.function(options)) 
+#>         options()
+#>     else options)
+#>     if (is.character(btnOpts <- options[["buttons"]])) 
+#>         options[["buttons"]] = as.list(btnOpts)
+#>     params = list()
+#>     attr(params, "TOJSON_ARGS") = getOption("DT.TOJSON_ARGS")
+#>     if (crosstalk::is.SharedData(data)) {
+#>         params$crosstalkOptions = list(key = data$key(), group = data$groupName())
+#>         data = data$data(withSelection = FALSE, withFilter = TRUE, 
+#>             withKey = FALSE)
+#>     }
+#>     rn = if (missing(rownames) || isTRUE(rownames)) 
+#>         base::rownames(data)
+#>     else {
+#>         if (is.character(rownames)) 
+#>             rownames
+#>     }
+#>     hideDataTable = FALSE
+#>     if (is.null(data) || identical(ncol(data), 0L)) {
+#>         data = matrix(ncol = 0, nrow = NROW(data))
+#>         hideDataTable = TRUE
+#>     }
+#>     else if (length(dim(data)) != 2) {
+#>         str(data)
+#>         stop("'data' must be 2-dimensional (e.g. data frame or matrix)")
+#>     }
+#>     if (is.data.frame(data)) {
+#>         data = as.data.frame(data)
+#>         numc = unname(which(vapply(data, is.numeric, logical(1))))
+#>     }
+#>     else {
+#>         if (!is.matrix(data)) 
+#>             stop("'data' must be either a matrix or a data frame, and cannot be ", 
+#>                 classes(data), " (you may need to coerce it to matrix or data frame)")
+#>         numc = if (is.numeric(data)) 
+#>             seq_len(ncol(data))
+#>         data = as.data.frame(data)
+#>     }
+#>     if (!is.null(rn)) {
+#>         data = cbind(` ` = rn, data)
+#>         numc = numc + 1
+#>     }
+#>     options[["columnDefs"]] = colDefsTgtHandle(options[["columnDefs"]], 
+#>         base::colnames(data))
+#>     data = boxListColumnAtomicScalars(data)
+#>     if (length(numc)) {
+#>         undefined_numc = setdiff(numc - 1, classNameDefinedColumns(options, 
+#>             ncol(data)))
+#>         if (length(undefined_numc)) 
+#>             options = appendColumnDefs(options, list(className = "dt-right", 
+#>                 targets = undefined_numc))
+#>     }
+#>     if (is.null(options[["order"]])) 
+#>         options$order = list()
+#>     if (is.null(options[["autoWidth"]])) 
+#>         options$autoWidth = FALSE
+#>     if (is.null(options[["orderClasses"]])) 
+#>         options$orderClasses = FALSE
+#>     cn = base::colnames(data)
+#>     if (missing(colnames)) {
+#>         colnames = cn
+#>     }
+#>     else if (!is.null(names(colnames))) {
+#>         i = convertIdx(colnames, cn)
+#>         cn[i] = names(colnames)
+#>         colnames = cn
+#>     }
+#>     if (ncol(data) - length(colnames) == 1) 
+#>         colnames = c(" ", colnames)
+#>     if (length(colnames) && colnames[1] == " ") 
+#>         options = appendColumnDefs(options, list(orderable = FALSE, 
+#>             targets = 0))
+#>     for (j in seq_len(ncol(data))) options = appendColumnDefs(options, 
+#>         list(name = names(data)[j], targets = j - 1))
+#>     style = normalizeStyle(style)
+#>     if (grepl("^bootstrap", style)) 
+#>         class = DT2BSClass(class)
+#>     if (style != "default") 
+#>         params$style = style
+#>     if (isTRUE(fillContainer)) 
+#>         class = paste(class, "fill-container")
+#>     if (is.character(filter)) 
+#>         filter = list(position = match.arg(filter))
+#>     filter = modifyList(list(position = "none", clear = TRUE, 
+#>         plain = FALSE, vertical = FALSE, opacity = 1), filter)
+#>     filterHTML = as.character(filterRow(data, !is.null(rn) && 
+#>         colnames[1] == " ", filter))
+#>     if (filter$position == "top") 
+#>         options$orderCellsTop = TRUE
+#>     params$filter = filter$position
+#>     params$vertical = filter$vertical
+#>     if (filter$position != "none") 
+#>         params$filterHTML = filterHTML
+#>     params$filterSettings = filter$settings
+#>     if (missing(container)) {
+#>         container = tags$table(tableHeader(colnames, escape), 
+#>             class = class)
+#>     }
+#>     else {
+#>         params$class = class
+#>     }
+#>     attr(options, "escapeIdx") = escapeToConfig(escape, colnames)
+#>     if (is.list(extensions)) {
+#>         extensions = names(extensions)
+#>     }
+#>     else if (!is.character(extensions)) {
+#>         stop("'extensions' must be either a character vector or a named list")
+#>     }
+#>     params$extensions = if (length(extensions)) 
+#>         as.list(extensions)
+#>     if ("Responsive" %in% extensions && is.null(options$responsive)) {
+#>         options$responsive = TRUE
+#>     }
+#>     params$caption = captionString(caption)
+#>     if (isTRUE(editable)) 
+#>         editable = "cell"
+#>     if (is.character(editable)) 
+#>         editable = list(target = editable, disable = list(columns = NULL))
+#>     if (is.list(editable)) 
+#>         params$editable = makeEditableField(editable, data, rn)
+#>     if (!identical(class(callback), class(JS("")))) 
+#>         stop("The 'callback' argument only accept a value returned from JS()")
+#>     if (length(options$pageLength) && length(options$lengthMenu) == 
+#>         0) {
+#>         if (!isFALSE(options$lengthChange)) 
+#>             options$lengthMenu = sort(unique(c(options$pageLength, 
+#>                 10, 25, 50, 100)))
+#>         if (identical(options$lengthMenu, c(10, 25, 50, 100))) 
+#>             options$lengthMenu = NULL
+#>     }
+#>     if (!is.null(options[["search"]]) && !is.list(options[["search"]])) 
+#>         stop("The value of `search` in `options` must be NULL or a list")
+#>     if (!is.null(fillContainer)) 
+#>         params$fillContainer = fillContainer
+#>     if (!is.null(autoHideNavigation)) {
+#>         if (isTRUE(autoHideNavigation) && length(options$pageLength) == 
+#>             0L) 
+#>             warning("`autoHideNavigation` will be ignored if the `pageLength` option is not provided.", 
+#>                 immediate. = TRUE)
+#>         params$autoHideNavigation = autoHideNavigation
+#>     }
+#>     params = structure(modifyList(params, list(data = data, container = as.character(container), 
+#>         options = options, callback = if (!missing(callback)) JS("function(table) {", 
+#>             callback, "}"))), colnames = cn, rownames = length(rn) > 
+#>         0)
+#>     if (inShiny() || length(params$crosstalkOptions)) {
+#>         if (is.character(selection)) {
+#>             selection = list(mode = match.arg(selection))
+#>         }
+#>         selection = modifyList(list(mode = "multiple", selected = NULL, 
+#>             target = "row", selectable = NULL), selection, keep.null = TRUE)
+#>         if (grepl("^row", selection$target) && is.character(selection$selected) && 
+#>             length(rn)) {
+#>             selection$selected = match(selection$selected, rn)
+#>         }
+#>         params$selection = validateSelection(selection)
+#>         if ("Select" %in% extensions && selection$mode != "none") 
+#>             warning("The Select extension can't work properly with DT's own ", 
+#>                 "selection implemention and is only recommended in the client mode. ", 
+#>                 "If you really want to use the Select extension please set ", 
+#>                 "`selection = 'none'`", immediate. = TRUE)
+#>     }
+#>     deps = DTDependencies(style)
+#>     deps = c(deps, unlist(lapply(extensions, extDependency, style, 
+#>         options), recursive = FALSE))
+#>     if (params$filter != "none") 
+#>         deps = c(deps, filterDependencies())
+#>     if (isTRUE(options$searchHighlight)) 
+#>         deps = c(deps, list(pluginDependency("searchHighlight")))
+#>     if (length(plugins)) 
+#>         deps = c(deps, lapply(plugins, pluginDependency))
+#>     deps = c(deps, crosstalk::crosstalkLibs())
+#>     if (isTRUE(fillContainer)) {
+#>         width = NULL
+#>         height = NULL
+#>     }
+#>     htmlwidgets::createWidget("datatables", if (hideDataTable) 
+#>         NULL
+#>     else params, package = "DT", width = width, height = height, 
+#>         elementId = elementId, sizingPolicy = htmlwidgets::sizingPolicy(knitr.figure = FALSE, 
+#>             defaultWidth = "100%", defaultHeight = "auto"), dependencies = deps, 
+#>         preRenderHook = function(instance) {
+#>             data = instance[["x"]][["data"]]
+#>             if (object.size(data) > 1500000 && getOption("DT.warn.size", 
+#>                 TRUE)) 
+#>                 warning("It seems your data is too big for client-side DataTables. You may ", 
+#>                   "consider server-side processing: https://rstudio.github.io/DT/server.html")
+#>             data = escapeData(data, escape, colnames)
+#>             data = unname(data)
+#>             instance$x$data = data
+#>             instance
+#>         })
+#> }
+#> <bytecode: 0x000001c2ce3b1310>
+#> <environment: namespace:DT>
+#> 
+#> $pre_knit
+#> function (...) 
+#> {
+#>     op(base(...), overlay(...))
+#> }
+#> <bytecode: 0x000001c2ce0662a0>
+#> <environment: 0x000001c2ce066930>
+#> 
+#> $post_knit
+#> function (...) 
+#> {
+#>     op(base(...), overlay(...))
+#> }
+#> <bytecode: 0x000001c2ce0662a0>
+#> <environment: 0x000001c2ce055120>
+#> 
+#> $pre_processor
+#> function (...) 
+#> {
+#>     op(base(...), overlay(...))
+#> }
+#> <bytecode: 0x000001c2ce0662a0>
+#> <environment: 0x000001c2ce055820>
+#> 
+#> $intermediates_generator
+#> function (original_input, intermediates_dir) 
+#> {
+#>     copy_render_intermediates(original_input, intermediates_dir, 
+#>         !self_contained)
+#> }
+#> <bytecode: 0x000001c2ce4585b0>
+#> <environment: 0x000001c2ce4b03c0>
+#> 
+#> $post_processor
+#> function (metadata, input_file, output_file, ...) 
+#> {
+#>     original_output_file <- output_file
+#>     output_file <- overlay(metadata, input_file, output_file, 
+#>         ...)
+#>     if (!is.null(attr(output_file, "post_process_original"))) 
+#>         base(metadata, input_file, original_output_file, ...)
+#>     base(metadata, input_file, output_file, ...)
+#> }
+#> <bytecode: 0x000001c2ce060460>
+#> <environment: 0x000001c2ce06d5f0>
+#> 
+#> $file_scope
+#> NULL
+#> 
+#> $on_exit
+#> function () 
+#> {
+#>     if (is.function(base)) 
+#>         base()
+#>     if (is.function(overlay)) 
+#>         overlay()
+#> }
+#> <bytecode: 0x000001c2ce0590e8>
+#> <environment: 0x000001c2ce0597e8>
+#> 
+#> attr(,"class")
+#> [1] "rmarkdown_output_format"
+\end{verbatim}
+
+\chapter*{About}\label{about}
+\addcontentsline{toc}{chapter}{About}
+
+This R script performs ETL (Extract, Transform, Load) operations on GDP data sourced from the UN Statistics Division. It handles preprocessing, data aggregation for regions/groups and creates comparison plots. The pipeline process can be broken down into 3 steps:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Data is \textbf{extracted} from \href{https://unstats.un.org/unsd/amaapi/swagger/index.html}{UNSD} and \href{https://nstatdb.dgbas.gov.tw/dgbasall/webMain.aspx?k=engmain}{Taiwan NSO} using their API.
+\item
+  Afterwards, the data is \textbf{transformed} such that is meets UNCTAD requirements.
+\item
+  Lastly, the data is \textbf{loaded} into a csv file which can be uploaded to \href{https://unctadstat.unctad.org/datacentre/}{UNCTADstat Data centre}.
+\end{enumerate}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section*{Gross Domestic Product}\label{gross-domestic-product}
+\addcontentsline{toc}{section}{Gross Domestic Product}
+
+GDP at \textbf{current prices} (or \textbf{nominal} GDP) measures the value of goods and services produced in an economy using the prices of the same year, so it includes the effects of inflation. In contrast, GDP at \textbf{constant prices} (or \textbf{real} GDP) adjusts for inflation by using prices from a base year (2015), reflecting only the actual change in the quantity of goods and services produced. This makes real GDP a better measure of economic growth over time.
+
+\section*{Libraries}\label{libraries}
+\addcontentsline{toc}{section}{Libraries}
+
+The R scripts and this bookdown document require the following packages:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(tidyverse)}
+\FunctionTok{library}\NormalTok{(readxl) }
+\FunctionTok{library}\NormalTok{(httr)}
+\FunctionTok{library}\NormalTok{(plotly)}
+\FunctionTok{library}\NormalTok{(htmltools)}
+\FunctionTok{library}\NormalTok{(gridExtra)}
+\end{Highlighting}
+\end{Shaded}
+
+\chapter{Usage}\label{usage}
+
+For both R Scripts, simply open the files with RStudio and run the functions inside in the order below.
+
+\section*{R Scripts}\label{r-scripts}
+\addcontentsline{toc}{section}{R Scripts}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \texttt{gdp\_etl\_pipeline.R} Contains one function which runs the entire ETL pipeline.
+\item
+  \texttt{gdp\_etl\_plots.R} Contains one function which generates comparison plots for all individual economies and groups of economies. The plots are exported to a pdf file.
+\end{enumerate}
+
+\section*{Working Directory}\label{working-directory}
+\addcontentsline{toc}{section}{Working Directory}
+
+The scripts automatically set the working directory to the location of the active R script file in RStudio.
+
+\section*{Directories}\label{directories}
+\addcontentsline{toc}{section}{Directories}
+
+Defines paths for:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{datadir}: Data input
+\item
+  \texttt{outputdir}: Output files
+\end{itemize}
+
+\section*{Economy Metadata}\label{economy-metadata}
+\addcontentsline{toc}{section}{Economy Metadata}
+
+Files found in \texttt{datadir}:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{Dim\_countries.csv}: Contains economy codes and valid year ranges.
+\item
+  \texttt{Dim\_Countries\_Hierarchy\_All.csv}: Contains hierarchical grouping for aggregations.
+\item
+  \texttt{lab\_all.csv}: Contains economy codes and labels.
+\item
+  \texttt{GDP\ growth\ rates.xlsx}: Contains growth rates for all economies. (needed only when estimating values for the last year)
+\item
+  \texttt{US.GDPTotal\_20250718\_104458.csv} Last release of GDP dataset at \href{https://unctadstat.unctad.org/datacentre/dataviewer/US.GDPTotal}{UNCTADstat}
+\end{itemize}
+
+\section*{Output Files}\label{output-files}
+\addcontentsline{toc}{section}{Output Files}
+
+Files found in \texttt{outputdir}:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{gdp\_comparison.csv}: A dataset containing old and new GDP values.
+\item
+  \texttt{GDP\_comparison\_groups.pdf}: Comparison plots of all individual economies and groups of economies.
+\item
+  \texttt{gdp\_update.csv}: An updated dataset in a generic format.
+\item
+  \texttt{gdp\_update\_usis.csv}: An updated dataset in a specific format to be used by USIS for uploading to UNCTADstat.
+\end{itemize}
+
+\chapter{Pipeline Explanation}\label{pipeline-explanation}
+
+This page provides comprehensive explanation for the GDP data processing R script.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Data Processing ETL Pipeline}\label{data-processing-etl-pipeline}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+  \CommentTok{\# Extract }
+\FunctionTok{get\_unsd\_gdp\_data}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{get\_taiwan\_gdp\_data}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  
+  \CommentTok{\# Transform}
+  \FunctionTok{compute\_missing\_values}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{estimate\_last\_year}\NormalTok{(}\AttributeTok{skip\_estimation=}\ConstantTok{FALSE}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{round\_values}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{delete\_data\_out\_of\_valid\_range}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_economy\_labels}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{compute\_aggregate\_values}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{add\_comments}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  
+  \CommentTok{\# Load}
+  \FunctionTok{export\_to\_general\_csv}\NormalTok{(}\StringTok{"gdp\_update.csv"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{export\_to\_usis\_csv}\NormalTok{(}\StringTok{"gdp\_update\_usis.csv"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Pipeline Functions}\label{pipeline-functions}
+
+\subsection*{\texorpdfstring{\texttt{get\_unsd\_gdp\_data()}}{get\_unsd\_gdp\_data()}}\label{get_unsd_gdp_data}
+\addcontentsline{toc}{subsection}{\texttt{get\_unsd\_gdp\_data()}}
+
+\begin{itemize}
+\tightlist
+\item
+  Downloads GDP data using UNSD API (both constant and current prices).
+\item
+  Merges, reshapes, and formats the dataset.
+\end{itemize}
+
+\subsection*{\texorpdfstring{\texttt{get\_taiwan\_gdp\_data(df)}}{get\_taiwan\_gdp\_data(df)}}\label{get_taiwan_gdp_datadf}
+\addcontentsline{toc}{subsection}{\texttt{get\_taiwan\_gdp\_data(df)}}
+
+\begin{itemize}
+\tightlist
+\item
+  Downloads GDP data from Taiwan NSO (both constant and current prices).
+\item
+  Rebases the GDP at constant prices from the year 2021 to 2015.
+\item
+  Calculates TWD to USD exchange rates.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    GDP data at current prices in USD are converted from TWD using annual period-average exchange rates.
+  \item
+    GDP data in constant prices in USD are converted from TWD using the annual period-average exchange rate of the base year (2015) for all years.
+  \end{itemize}
+\end{itemize}
+
+\subsection*{\texorpdfstring{\texttt{compute\_missing\_values(df)}}{compute\_missing\_values(df)}}\label{compute_missing_valuesdf}
+\addcontentsline{toc}{subsection}{\texttt{compute\_missing\_values(df)}}
+
+\begin{itemize}
+\tightlist
+\item
+  Handles historical and geopolitical inconsistencies by merging country records (e.g., Yugoslavia, USSR)
+\item
+  Described in-depth in chapter \hyperref[special-cases]{Special Cases}.
+\end{itemize}
+
+\subsection*{\texorpdfstring{\texttt{estimate\_last\_year(df,\ skip\_estimation=FALSE)}}{estimate\_last\_year(df, skip\_estimation=FALSE)}}\label{estimate_last_yeardf-skip_estimationfalse}
+\addcontentsline{toc}{subsection}{\texttt{estimate\_last\_year(df,\ skip\_estimation=FALSE)}}
+
+\begin{itemize}
+\tightlist
+\item
+  Last year is estimated using growth rates found in \texttt{GDP\ growth\ rates.xlsx}.
+\item
+  This step is skipped, if \texttt{skip\_estimation} is set to TRUE
+\end{itemize}
+
+\subsection*{\texorpdfstring{\texttt{round\_values(df)}}{round\_values(df)}}\label{round_valuesdf}
+\addcontentsline{toc}{subsection}{\texttt{round\_values(df)}}
+
+\begin{itemize}
+\tightlist
+\item
+  Rounds values to the nearest integer using base R \texttt{round()} function.
+\end{itemize}
+
+\subsection*{\texorpdfstring{\texttt{delete\_data\_out\_of\_valid\_range(df)}}{delete\_data\_out\_of\_valid\_range(df)}}\label{delete_data_out_of_valid_rangedf}
+\addcontentsline{toc}{subsection}{\texttt{delete\_data\_out\_of\_valid\_range(df)}}
+
+\begin{itemize}
+\tightlist
+\item
+  Filters out data points falling outside the valid year range for each country.
+\end{itemize}
+
+\subsection*{\texorpdfstring{\texttt{compute\_aggregate\_values(df)}}{compute\_aggregate\_values(df)}}\label{compute_aggregate_valuesdf}
+\addcontentsline{toc}{subsection}{\texttt{compute\_aggregate\_values(df)}}
+
+\begin{itemize}
+\tightlist
+\item
+  Computes GDP aggregates for groups using hierarchical mappings.
+\end{itemize}
+
+\subsection*{\texorpdfstring{\texttt{add\_economy\_labels(df)}}{add\_economy\_labels(df)}}\label{add_economy_labelsdf}
+\addcontentsline{toc}{subsection}{\texttt{add\_economy\_labels(df)}}
+
+\begin{itemize}
+\tightlist
+\item
+  Joins human-readable economy labels using economy codes.
+\end{itemize}
+
+\subsection*{\texorpdfstring{\texttt{add\_comments(df)}}{add\_comments(df)}}\label{add_commentsdf}
+\addcontentsline{toc}{subsection}{\texttt{add\_comments(df)}}
+
+\begin{itemize}
+\tightlist
+\item
+  Adds ``CommentEN'' and ``CommentFR'' columns remarking on values which were calculated in \texttt{compute\_missing\_values(df)}.
+\end{itemize}
+
+\subsection*{\texorpdfstring{\texttt{export\_to\_generic\_csv(df,\ filename)}}{export\_to\_generic\_csv(df, filename)}}\label{export_to_generic_csvdf-filename}
+\addcontentsline{toc}{subsection}{\texttt{export\_to\_generic\_csv(df,\ filename)}}
+
+\begin{itemize}
+\tightlist
+\item
+  Saves the dataset to a generic CSV file.
+\end{itemize}
+
+\subsection*{\texorpdfstring{\texttt{export\_to\_usis\_csv(df,\ filename)}}{export\_to\_usis\_csv(df, filename)}}\label{export_to_usis_csvdf-filename}
+\addcontentsline{toc}{subsection}{\texttt{export\_to\_usis\_csv(df,\ filename)}}
+
+\begin{itemize}
+\tightlist
+\item
+  Saves the dataset to a CSV file used by USIS for upload to \href{https://unctadstat.unctad.org/datacentre/dataviewer/US.GDPTotal}{UNCTADstat}.
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Helper functions}\label{helper-functions}
+
+\subsection*{\texorpdfstring{\texttt{read\_usis(series,\ source,\ name)}}{read\_usis(series, source, name)}}\label{read_usisseries-source-name}
+\addcontentsline{toc}{subsection}{\texttt{read\_usis(series,\ source,\ name)}}
+
+\subsection*{\texorpdfstring{\texttt{read\_usis(series,\ source,\ name)}}{read\_usis(series, source, name)}}\label{read_usisseries-source-name-1}
+\addcontentsline{toc}{subsection}{\texttt{read\_usis(series,\ source,\ name)}}
+
+\chapter{Special Cases}\label{special-cases}
+
+\section{Taiwan Province of China}\label{taiwan-province-of-china}
+
+The UNSD dataset does not contain data for Taiwan. Taiwan data is extracted separately from \href{https://nstatdb.dgbas.gov.tw/dgbasall/webMain.aspx?k=engmain}{Taiwan's National Statistical Office}.
+
+\section{Former economies}\label{former-economies}
+
+Three former economies were relabeled.
+
+\subsection*{Federal Republic of Germany 1970-1989}\label{federal-republic-of-germany-1970-1989}
+\addcontentsline{toc}{subsection}{Federal Republic of Germany 1970-1989}
+
+Federal Republic of Germany 280 \textless- Germany 276
+
+\subsection*{Indonesia (..2002) 1970-2002}\label{indonesia-..2002-1970-2002}
+\addcontentsline{toc}{subsection}{Indonesia (..2002) 1970-2002}
+
+Indonesia (..2002) 960 \textless- Indonesia 360
+
+\subsection*{Panama, excluding Canal Zone 1970-1980}\label{panama-excluding-canal-zone-1970-1980}
+\addcontentsline{toc}{subsection}{Panama, excluding Canal Zone 1970-1980}
+
+Panama, excluding Canal Zone 590 \textless- Panama 591
+
+\section{Dissolved Economies}\label{dissolved-economies}
+
+Data for certain dissolved economies had to be calculated by aggregating its descendant economies.
+
+\textbf{Example:} Czechoslovakia has split up in 1993 into Czechia and Slovakia. UNCTAD~requires data for Czechoslovakia until 1992 and separate data since 1993. UNSD contains Czechoslovakia data until 1989 and separate data since 1990. The ETL script sums Czechia and Slovakia data for the years 1990-1992 and adds a \emph{Czechoslovakia} label, an economy code \emph{200} and a comment \emph{Czechia 203 + Slovakia 703} referring to the origin of the values.
+
+Below is the full list of special cases.
+
+\subsection*{United Republic of Tanzania 1970-2023}\label{united-republic-of-tanzania-1970-2023}
+\addcontentsline{toc}{subsection}{United Republic of Tanzania 1970-2023}
+
+URT 834 \textless- Tanzania Mainland 835 + Zanzibar 836
+
+\subsection*{Czechoslovakia (Former) 1990-1992}\label{czechoslovakia-former-1990-1992}
+\addcontentsline{toc}{subsection}{Czechoslovakia (Former) 1990-1992}
+
+Czechoslovakia 200 \textless- Czechia 203 + Slovakia 703
+
+\subsection*{Sudan (Former) 2011}\label{sudan-former-2011}
+\addcontentsline{toc}{subsection}{Sudan (Former) 2011}
+
+Former Sudan 736 \textless- South Sudan 728 + Sudan 729
+
+\subsection*{Serbia and Montenegro 1992-1998}\label{serbia-and-montenegro-1992-1998}
+\addcontentsline{toc}{subsection}{Serbia and Montenegro 1992-1998}
+
+Serbia and Montenegro 891 \textless- Serbia 688 + Montenegro 499
+
+\subsection*{Serbia and Montenegro 1999-2007}\label{serbia-and-montenegro-1999-2007}
+\addcontentsline{toc}{subsection}{Serbia and Montenegro 1999-2007}
+
+Serbia and Montenegro 891 \textless- Serbia 688 + Montenegro 499 + Kosovo 412
+
+\subsection*{Yugoslavia (Former) 1991}\label{yugoslavia-former-1991}
+\addcontentsline{toc}{subsection}{Yugoslavia (Former) 1991}
+
+Yugoslavia 890 \textless- Serbia 688 + Montenegro 499 + Croatia 191 + North Macedonia 807
++ Slovenia 705 + Bosnia and Herzegovina 070
+
+\subsection*{USSR (Former) 1991}\label{ussr-former-1991}
+\addcontentsline{toc}{subsection}{USSR (Former) 1991}
+
+USSR 810 \textless- Russian Federation 643 + Ukraine 804 + Belarus 112 + Uzbekistan 860 + Kazakhstan 398
++ Georgia 268 + Azerbaijan 031 + Lithuania 440 + Moldova 498 + Latvia 428 + Kyrgyzstan 417
++ Tajikistan 762 + Armenia 051 + Turkmenistan 795 + Estonia 233
+
+\subsection*{Pacific Islands, Trust Territory 1970-1981}\label{pacific-islands-trust-territory-1970-1981}
+\addcontentsline{toc}{subsection}{Pacific Islands, Trust Territory 1970-1981}
+
+Pacific Islands, Trust Territory 582 \textless- Micronesia 583 + Marshall Islands 584 + Palau 585
+
+\chapter{Discrepancies before 2024}\label{discrepancies-before-2024}
+
+All discrepancies in individual economies from the previous release before the year 2024.
+
+\chapter{Missing Values}\label{missing-values}
+
+A list of economies with values missing in the new dataset.
+
+\chapter{Added Values}\label{added-values}
+
+A list of economies with values, which were missing in the old dataset.
+
+  \bibliography{book.bib,packages.bib}
+
+\end{document}
