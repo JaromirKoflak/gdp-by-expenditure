@@ -1,4 +1,7 @@
 
+
+
+
 run_etl_pipeline = function() {
   
 library(tidyverse)
@@ -28,7 +31,9 @@ economy_groups = read.csv(file.path(datadir, "Dim_Countries_Hierarchy_All.csv"))
 # Economy labels
 labels = read.csv(file.path(datadir, "lab_all.csv")) 
 
-
+# Indicator labels 
+indicator_labels = read_csv(file.path(datadir, "indicator_labels.csv"), show_col_types = FALSE)
+ 
 get_unsd_data = function() {
   # API calls
   url1 <- "https://unstats.un.org/unsd/amaapi/api/file/8"
@@ -129,8 +134,10 @@ remove_regions = function(df){
     distinct(`Region/SubregionID`) %>% 
     pull()
   
+  world_code = 1 # "0001"
+  
   df %>% 
-    filter(!(Economy_Code %in% c(1, region_codes))) %>% 
+    filter(!(Economy_Code %in% c(world_code, region_codes))) %>% 
     mutate(Economy_Code = str_pad(Economy_Code, 3, side = "left", pad = "0")) %>% 
     return
 }
@@ -241,22 +248,11 @@ add_economy_labels = function(df) {
 
 rename_indicator_labels = function(df) {
   df %>% 
-    mutate(
-      IndicatorName = recode(
-        IndicatorName,
-        "Gross Domestic Product (GDP)" = "Gross domestic product (GDP)",
-        "Total Value Added" = "Total value added",
-        "Agriculture, hunting, forestry, fishing (ISIC A-B)" = "Agriculture, hunting, forestry, fishing",
-        "Mining, Manufacturing, Utilities (ISIC C-E)" = "Mining, manufacturing, utilities", 
-        "Manufacturing (ISIC D)" = "Manufacturing",
-        "Other Activities (ISIC J-P)" = "Other activities",
-        "Gross fixed capital formation (including Acquisitions less disposals of valuables)" = "Gross fixed capital formation",
-        "Household consumption expenditure (including Non-profit institutions serving households)" = "Household consumption expenditure (including NPISH)",
-        "Construction (ISIC F)" = "Construction",
-        "Transport, storage and communication (ISIC I)" = "Transport, storage and communications",
-        "Wholesale, retail trade, restaurants and hotels (ISIC G-H)" = "Wholesale, retail trade, restaurants and hotels" 
-      ) 
-    ) %>% 
+    left_join(indicator_labels,
+              join_by(IndicatorName == UNSD_Label)) %>% 
+    mutate(IndicatorName = UNCTAD_Label,
+           IndicatorCode = Code) %>% 
+    select(Economy_Code, Economy_Label, Year, IndicatorCode, IndicatorName, Prices, Value) %>% 
     return
 }
 
@@ -267,7 +263,8 @@ calculate_industry_and_services = function(df) {
     ) %>% 
     group_by(Economy_Code, Economy_Label, Year, Prices) %>% 
     summarise(Value = sum(Value)) %>% 
-    mutate(IndicatorName = "Industry")
+    mutate(IndicatorName = "Industry",
+           IndicatorCode = 43)
 
   services = df %>% 
     filter(
@@ -275,7 +272,8 @@ calculate_industry_and_services = function(df) {
     ) %>% 
     group_by(Economy_Code, Economy_Label, Year, Prices) %>% 
     summarise(Value = sum(Value)) %>% 
-    mutate(IndicatorName = "Services")
+    mutate(IndicatorName = "Services",
+           IndicatorCode = 49)
     
   # Output
   df %>% 

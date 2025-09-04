@@ -1,0 +1,20 @@
+﻿Code,UNCTAD_Label,UNSD_Label
+0,Gross domestic product (GDP),Gross Domestic Product (GDP) 
+1,Final consumption expenditure,Final consumption expenditure
+2,Household consumption expenditure (including NPISH),Household consumption expenditure (including Non-profit institutions serving households)
+5,General government final consumption expenditure,General government final consumption expenditure  
+8,Gross capital formation,Gross capital formation
+9,Gross fixed capital formation,Gross fixed capital formation (including Acquisitions less disposals of valuables) 
+10,Changes in inventories,Changes in inventories
+12,Exports of goods and services,Exports of goods and services
+15,Imports of goods and services,Imports of goods and services
+41,Total value added,Total Value Added
+42,"Agriculture, hunting, forestry, fishing","Agriculture, hunting, forestry, fishing (ISIC A-B)"
+43,Industry,
+44,"Mining, manufacturing, utilities","Mining, Manufacturing, Utilities (ISIC C-E)"
+46,Manufacturing,Manufacturing (ISIC D)
+48,Construction,Construction (ISIC F) 
+49,Services,
+50,"Wholesale, retail trade, restaurants and hotels","Wholesale, retail trade, restaurants and hotels (ISIC G-H)"
+51,"Transport, storage and communications","Transport, storage and communication (ISIC I) "
+52,Other activities,Other Activities (ISIC J-P)  
