@@ -19,6 +19,7 @@ missing_values_table %>%
   group_by(Label) %>% 
   count() %>% 
   rename(`Incomplete Series` = n) %>% 
+  arrange(desc(`Incomplete Series`), Label) %>% 
   DT::datatable()
 ```
 
