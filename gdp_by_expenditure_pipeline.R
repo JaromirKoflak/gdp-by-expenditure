@@ -9,7 +9,7 @@ library(readxl)
 library(httr)
 library(gridExtra)
   
-last_year = 2024  
+last_year = 2023  
 
 ### Getting the path of your current open file
 current_path = rstudioapi::getActiveDocumentContext()$path
@@ -47,84 +47,17 @@ get_unsd_data = function() {
   gdp_current <- read_excel(tf2, skip = 2) %>%
     pivot_longer(!c(1:3), names_to = "Year", values_to = "current")
 
-  df <- inner_join(
-    gdp_constant, 
-    gdp_current,
-    by = c("CountryID", "Year", "IndicatorName")
-  ) %>% 
-    pivot_longer(
-      c(5,7), 
-      names_to = "Prices", 
-      values_to = "Value"
-    ) %>% 
-    mutate(
-      Economy_Code = CountryID,
-      Year = as.numeric(Year)
-    ) %>% 
-    select(
-      Economy_Code, Year, IndicatorName, Prices, Value
-    ) 
+  df <- inner_join(gdp_constant,
+                   gdp_current,
+                   by = c("CountryID", "Year", "IndicatorName")) %>%
+    pivot_longer(c(5, 7), names_to = "Prices", values_to = "Value") %>%
+    mutate(Economy_Code = CountryID, 
+           Year = as.numeric(Year)) %>%
+    left_join(indicator_labels %>% select(UNSDLabel, IndicatorCode),
+              by = join_by(IndicatorName == UNSDLabel)) %>% 
+    select(Economy_Code, Year, IndicatorCode, Prices, Value) 
   
   return(df)
-}
-
-get_taiwan_gdp_data = function(df) {
-  ### Taiwan NSO, UNIT: Million NT$
-  # Fernando's Code
-  t_1970 <- (1970 - 1951) * 100 + 4000
-  t_1980 <- (1980 - 1951) * 100 + 4000
-  t_1981 <- (1981 - 1951) * 100 + 4000
-  t_last <- (last_year - 1 - 1951) * 100 + 4000  # The last year is estimated using growth rates, so we only ask for data up to the penultimate year
-  
-  # 1.1 Principal Figures 
-  # Used for Exchange rates
-  url <- paste0("https://nstatdb.dgbas.gov.tw/dgbasall/webMain.aspx?sys=220&funid=E018101010&outmode=3&cycle=4&outkind=3&compmode=0&ratenm=Value&fldlst=111111111111111&compmode=0",
-                "&ymf=", t_1970, "&ymt=", t_last, "&rdm=R164860&eng=1")
-  temp <- read_csv(url, skip = 2, show_col_types = F)
-  data1 <- temp %>% slice(-c((nrow(.)-2):nrow(.)))
-  
-  # 2.1 Expenditures on GDP Annual & Quarterly (1951-1980)
-  # Using only Annual data
-  url <- paste0("https://nstatdb.dgbas.gov.tw/dgbasall/webMain.aspx?sys=220&funid=E018102010&outmode=3&cycle=4&outkind=3&compmode=0&ratenm=Value&fldlst=111&codlst0=100000000000011001001001111&compmode=0",
-                "&ymf=", t_1970, "&ymt=", t_1980, "&rdm=R63170&eng=1") 
-  temp <- read_csv(url, skip = 2, show_col_types = F, na="--", 
-                   col_types = cols(
-                     `At Current Prices` = col_double(),
-                     `Chained (2021) Dollars` = col_double()))
-  data2 <- temp %>% slice(-c((nrow(.)-5):nrow(.)))
-  
-  # 2.2 Expenditures on GDP Annual (since 1981)
-  url <- paste0("https://nstatdb.dgbas.gov.tw/dgbasall/webMain.aspx?sys=220&funid=E018102050&outmode=3&cycle=4&outkind=3&compmode=0&ratenm=Value&fldlst=111&codlst0=111001001001111111111&compmode=0",
-                "&ymf=", t_1981, "&ymt=", t_last, "&rdm=R23908&eng=1")
-  temp <- read_csv(url, skip = 2, show_col_types = F, na="--", 
-                   col_types = cols(
-                     `At Current Prices` = col_double(),
-                     `Chained (2021) Dollars` = col_double()))
-  data3 <- temp %>% slice(-c((nrow(.)-3):nrow(.)))
-  
-  rebase_factor = data3 %>%
-    filter(Period == 2015, Expenditure == "8. GDP") %>%
-    summarise(rebase_factor = `At Current Prices` / `Chained (2021) Dollars`) %>%
-    pull
-  
-  nsodata = data2 %>%
-    add_row(data3) %>% 
-    filter(Expenditure %in% c("6.GDP", "8. GDP")) %>% 
-    left_join(data1,
-              by = join_by(Period)) %>% 
-    mutate(Exchange_rate = `GDP (Million N.T.$,at Current Prices)` / `GDP (Million U.S.$,at Current Prices)`) %>% 
-    transmute(
-      Economy_Code = "158",
-      Year = Period,
-      # Constant prices are calculated using the exchange rate of the base year for all years  
-      GDP_at_constant_prices_2015 = `Chained (2021) Dollars` * 1e6 / Exchange_rate[Period==2015] * rebase_factor,
-      # Current prices are calculated using the exchange rate of that year  
-      GDP_at_current_prices = `At Current Prices` * 1e6 / Exchange_rate,
-    ) %>%
-    pivot_longer(-c(1:2), names_to = "Variable", values_to = "Value") %>%
-    mutate(Year = as.numeric(Year)) 
-  
-  return(df %>% bind_rows(nsodata))
 }
 
 remove_regions = function(df){
@@ -142,7 +75,133 @@ remove_regions = function(df){
     return
 }
 
-compute_missing_values = function(df) {
+get_taiwan_gdp_data = function(df) {
+  ### Taiwan NSO, UNIT: Million NT$
+  # Fernando's Code
+  t_1970 <- (1970 - 1951) * 100 + 4000
+  t_1980 <- (1980 - 1951) * 100 + 4000
+  t_1981 <- (1981 - 1951) * 100 + 4000
+  t_last <- (last_year - 1951) * 100 + 4000 
+  
+  # 1.1 Principal Figures 
+  # Used for Exchange rates
+  url <- paste0("https://nstatdb.dgbas.gov.tw/dgbasall/webMain.aspx?sys=220&funid=E018101010&outmode=3&cycle=4&outkind=3&compmode=0&ratenm=Value&fldlst=111111111111111&compmode=0",
+                "&ymf=", t_1970, "&ymt=", t_last, "&rdm=R164860&eng=1")
+  temp <- read_csv(url, skip = 2, show_col_types = F)
+  data1 <- temp %>% 
+    slice(-c((nrow(.)-2):nrow(.))) %>% 
+    transmute(
+      Period = as.numeric(Period),
+      ExchangeRate = `GDP (Million N.T.$,at Current Prices)` / `GDP (Million U.S.$,at Current Prices)`)
+  
+  # 2.1 Expenditures on GDP Annual & Quarterly (1951-1980)
+  # Using only Annual data
+  url <- paste0("https://nstatdb.dgbas.gov.tw/dgbasall/webMain.aspx?sys=220&funid=E018102010&outmode=3&cycle=4&outkind=3&compmode=0&ratenm=Value&fldlst=110&codlst0=100000000000011001001001111&compmode=0",
+                "&ymf=", t_1970, "&ymt=", t_1980, "&rdm=R63170&eng=1") 
+  temp <- read_csv(url, skip = 2, show_col_types = F, na="--", 
+                   col_types = cols(
+                     `At Current Prices` = col_double(),
+                     `Chained (2021) Dollars` = col_double()))
+  data2 <- temp %>% 
+    slice(-c((nrow(.)-5):nrow(.))) %>% 
+    mutate(Period = as.numeric(Period)) %>% 
+    rename(TaiwanLabel = Expenditure,
+           current = `At Current Prices`,
+           constant = `Chained (2021) Dollars`) 
+  
+  # 2.2 Expenditures on GDP Annual (since 1981)
+  url <- paste0("https://nstatdb.dgbas.gov.tw/dgbasall/webMain.aspx?sys=220&funid=E018102050&outmode=3&cycle=4&outkind=3&compmode=0&ratenm=Value&fldlst=110&codlst0=111111111111111111111&compmode=0",
+                "&ymf=", t_1981, "&ymt=", t_last, "&rdm=R23908&eng=1")
+  temp <- read_csv(url, skip = 2, show_col_types = F, na="--", 
+                   col_types = cols(
+                     `At Current Prices` = col_double(),
+                     `Chained (2021) Dollars` = col_double()))
+  data3 <- temp %>% 
+    slice(-c((nrow(.)-3):nrow(.))) %>% 
+    mutate(Period = as.numeric(Period)) %>% 
+    rename(TaiwanLabel = Expenditure,
+           current = `At Current Prices`,
+           constant = `Chained (2021) Dollars`)
+  
+  # 2.4.1 Private Final Consumption Expenditure  (since 1981)
+  url <- paste0("https://nstatdb.dgbas.gov.tw/dgbasall/webMain.aspx?sys=220&funid=E018203010&outmode=3&cycle=4&outkind=3&compmode=0&ratenm=Value&fldlst=110&codlst0=0000000000000001000000&compmode=0",
+                "&ymf=", t_1981, "&ymt=", t_last, "&rdm=R84965&eng=1")
+  temp <- read_csv(url, skip = 2, show_col_types = F, na="--")
+  data4 <- temp %>% 
+    slice(-c((nrow(.)-2):nrow(.))) %>% 
+    mutate(Period = as.numeric(Period)) %>% 
+    rename(TaiwanLabel = Item,
+           current = `At Current Prices`,
+           constant = `Chained (2021) Dollars`)
+  
+  # 4.1 Gross Domestic Product by Kind of Activity  (since 1981)
+  url <- paste0("https://nstatdb.dgbas.gov.tw/dgbasall/webMain.aspx?sys=220&funid=E018103010&outmode=3&cycle=4&outkind=3&compmode=0&ratenm=Value&fldlst=00110&codlst0=10000110000000000000000000000000100100110010000010010001000100110011100110001111010000&compmode=0",
+                "&ymf=", t_1981, "&ymt=", t_last, "&rdm=R179052&eng=1")
+  temp <- read_csv(url, skip = 2, show_col_types = F, na="-")
+  data5 <- temp %>% 
+    slice(-c((nrow(.)-5):nrow(.))) %>% 
+    rename(TaiwanLabel = `Kind of Activity`,
+           current = `Gross Domestic Product_Current Price(Million N.T.$)`,
+           constant = `Gross Domestic Product_Chained (2021) Dollars(Million N.T.$)`)
+  
+   
+  rebase_factor = data3 %>%
+    filter(Period == 2015, TaiwanLabel == "8. GDP") %>%
+    summarise(rebase_factor = current / constant) %>%
+    pull
+   
+  rebase_year_exchange_rate <- data1 %>% 
+    filter(Period == 2015) %>% 
+    pull(ExchangeRate)
+  
+  nsodata <- bind_rows(data2, data3, data4, data5) %>% 
+     right_join(
+       indicator_labels %>%
+         select(IndicatorCode, TaiwanLabel) %>%
+         na.omit(),
+       by = join_by(TaiwanLabel),
+       relationship = "many-to-many"
+     ) %>% 
+     group_by(Period, IndicatorCode) %>% 
+     summarise(current = sum(current),
+               constant = sum(constant)) %>%
+     ungroup() %>% 
+     left_join(
+       data1,
+       by = join_by(Period)
+     ) %>% 
+     transmute(
+       Economy_Code = "158",
+       Year = Period,
+       IndicatorCode = IndicatorCode,
+       # Current prices are calculated using the exchange rate of that year
+       current = current * 1e6 / ExchangeRate,
+       # Constant prices are calculated using the exchange rate of the base year for all years
+       constant = constant * 1e6 / rebase_year_exchange_rate * rebase_factor
+     ) %>% 
+    pivot_longer(c(current, constant), names_to = "Prices", values_to = "Value")
+  
+  # nsodata = data2 %>%
+  #   add_row(data3) %>% 
+  #   filter(Expenditure %in% c("6.GDP", "8. GDP")) %>% 
+  #   left_join(data1,
+  #             by = join_by(Period)) %>% 
+  #   transmute(
+  #     Economy_Code = "158",
+  #     Year = Period,
+  #     # Constant prices are calculated using the exchange rate of the base year for all years  
+  #     GDP_at_constant_prices_2015 = `Chained (2021) Dollars` * 1e6 / Exchange_rate[Period==2015] * rebase_factor,
+  #     # Current prices are calculated using the exchange rate of that year  
+  #     GDP_at_current_prices = `At Current Prices` * 1e6 / Exchange_rate,
+  #   ) %>%
+  #   pivot_longer(-c(1:2), names_to = "Variable", values_to = "Value") %>%
+  #   mutate(Year = as.numeric(Year))
+  
+  
+  return(df %>% bind_rows(nsodata))
+}
+
+compute_special_cases = function(df) {
   df %>%
     # 1 United Republic of Tanzania  1970  2023
     # URT 834 <- Tanzania Mainland 835 + Zanzibar 836
@@ -209,7 +268,7 @@ compute_missing_values = function(df) {
                                 Economy_Code == 591 & Year %in% c(1970:1980),
                                 590)) %>%
     
-    group_by(Economy_Code, Year, IndicatorName, Prices) %>%
+    group_by(Economy_Code, Year, IndicatorCode, Prices) %>%
     summarise_at(vars(Value), sum, na.rm=TRUE) %>%
     ungroup() %>%
     mutate(Year = as.numeric(Year)) %>%
@@ -248,10 +307,11 @@ add_economy_labels = function(df) {
 
 rename_indicator_labels = function(df) {
   df %>% 
-    left_join(indicator_labels,
-              join_by(IndicatorName == UNSD_Label)) %>% 
-    mutate(IndicatorName = UNCTAD_Label,
-           IndicatorCode = Code) %>% 
+    left_join(indicator_labels %>% 
+                select(IndicatorCode, UNCTADLabel) %>% 
+                na.omit(),
+              join_by(IndicatorCode == IndicatorCode)) %>% 
+    rename(IndicatorName = UNCTADLabel) %>% 
     select(Economy_Code, Economy_Label, Year, IndicatorCode, IndicatorName, Prices, Value) %>% 
     return
 }
@@ -332,9 +392,9 @@ compute_aggregate_values = function(df) {
       by = join_by(Child_Code == Economy_Code),
       relationship = "many-to-many"
     ) %>% 
-    group_by(Parent_Code, Parent_Label, Year, IndicatorName, Prices) %>% 
+    group_by(Parent_Code, Parent_Label, Year, IndicatorCode, IndicatorName, Prices) %>% 
     summarise(Value=sum(Value, na.rm=TRUE)) %>% 
-    ungroup %>% 
+    ungroup() %>% 
     rename(Economy_Code = Parent_Code,
            Economy_Label = Parent_Label) %>% 
     filter(!is.na(Year)) %>% 
@@ -345,18 +405,8 @@ compute_aggregate_values = function(df) {
   return(
     df %>% 
       bind_rows(groupgdp) %>% 
-      arrange(Economy_Code, Year, IndicatorName, Prices)
+      arrange(Economy_Code, Year, IndicatorCode, Prices)
   )
-}
-
-export_to_generic_csv = function(df, filename) {
-  write_csv(df, file.path(outputdir, filename))
-  return(df)
-}
-
-export_to_usis_csv = function(df, filename) {
-  write_csv(df, file.path(outputdir, filename))
-  return(df)
 }
 
 add_comments = function(df) {
@@ -464,22 +514,55 @@ add_comments = function(df) {
     return
 }
 
+export_to_generic_csv = function(df, filename) {
+  write_csv(df, file.path(outputdir, filename))
+  return(df)
+}
+
+export_to_usis_csv = function(df, filename) {
+  df %>% 
+    transmute(
+      Series = NA,
+      Country = Economy_Code,
+      Period = "A00",
+      Year = Year,
+      NAComponent = NA,
+      Measure = NA,
+      Source = NA,
+      DataSource = NA,
+      Value = Value,
+      DataStatus = NA,
+      DataConfidentiality = NA,
+      CommentEN = CommentEN,
+      CommentFR = CommentFR,
+      CommentConfidentiality = NA,
+      RefDate = paste(
+        day(today()), 
+        month(today()), 
+        year(today()), 
+        sep = "/")
+    ) %>% 
+    write_csv(file.path(outputdir, filename))
+  return(df)
+}
+
+
 input_data = get_unsd_data() %>%
   remove_regions()
 
 gdp_exp = input_data %>% 
-  # get_taiwan_gdp_data() %>% 
-  compute_missing_values() %>%
+  get_taiwan_gdp_data() %>%
+  compute_special_cases() %>%
   delete_data_out_of_valid_range() %>%
   convert_to_millions() %>% 
   add_economy_labels() %>%
   rename_indicator_labels() %>% 
   calculate_industry_and_services() %>% 
   compute_aggregate_values() %>%
-  # add_comments() %>%
+  add_comments() %>%
   export_to_generic_csv("gdp_expenditure_update.csv") %>%
-  # export_to_usis_csv("gdp_expenditure_update_usis.csv") %>% 
-  arrange(Economy_Code, Year, IndicatorName, Prices) %>% 
+  # export_to_usis_csv("gdp_expenditure_update_usis.csv") %>%
+  arrange(Economy_Code, Year, IndicatorCode, Prices) %>% 
   return
 }
 
