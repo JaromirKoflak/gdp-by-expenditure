@@ -145,16 +145,23 @@ get_taiwan_gdp_data = function(df) {
            constant = `Gross Domestic Product_Chained (2021) Dollars(Million N.T.$)`)
   
    
-  rebase_factor = data3 %>%
-    filter(Period == 2015, TaiwanLabel == "8. GDP") %>%
-    summarise(rebase_factor = current / constant) %>%
-    pull
+  rebase_factor = bind_rows(data2, data3, data4, data5)  %>%
+    filter(Period == 2015) %>%
+    transmute(
+      TaiwanLabel = TaiwanLabel,
+      RebaseFactor = current / constant)
    
   rebase_year_exchange_rate <- data1 %>% 
     filter(Period == 2015) %>% 
     pull(ExchangeRate)
   
   nsodata <- bind_rows(data2, data3, data4, data5) %>% 
+     mutate(TaiwanLabel = replace(TaiwanLabel, TaiwanLabel == "6.GDP", "8. GDP")) %>% 
+     left_join(
+       rebase_factor,
+       by = join_by(TaiwanLabel)
+     ) %>% 
+     mutate(constant = constant * RebaseFactor) %>% 
      right_join(
        indicator_labels %>%
          select(IndicatorCode, TaiwanLabel) %>%
@@ -177,7 +184,7 @@ get_taiwan_gdp_data = function(df) {
        # Current prices are calculated using the exchange rate of that year
        current = current * 1e6 / ExchangeRate,
        # Constant prices are calculated using the exchange rate of the base year for all years
-       constant = constant * 1e6 / rebase_year_exchange_rate * rebase_factor
+       constant = constant * 1e6 / rebase_year_exchange_rate
      ) %>% 
     pivot_longer(c(current, constant), names_to = "Prices", values_to = "Value")
   
